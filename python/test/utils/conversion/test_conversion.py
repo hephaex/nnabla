@@ -63,7 +63,7 @@ print(TEST_DATA_DIR)
 DEFAULT_NNP_EXPORT_PATH = None
 
 try:
-    from gen_report import gen_report
+    from .gen_report import gen_report
 except:
     print("Cannot generate report since no gen_report module.")
 

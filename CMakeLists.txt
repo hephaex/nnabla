@@ -79,22 +79,23 @@ string(STRIP ${NBLA_SETUP_LIB_DIR_RAW} NBLA_SETUP_LIB_DIR)
 ###############################################################################
 # Code generator
 ###############################################################################
-file(MAKE_DIRECTORY  ${CMAKE_SOURCE_DIR}/src/nbla/proto)
 
+file(STRINGS ${CMAKE_SOURCE_DIR}/VERSION.txt versions NEWLINE_CONSUME)
+string(REGEX REPLACE [[^([A-z0-9.\-_]+).*$]] [[\1]] version ${versions})
+string(REGEX REPLACE [[^([0-9]+)\.([0-9]+)\.(.*)$]] [[\1]] version_major ${version})
+string(REGEX REPLACE [[^([0-9]+)\.([0-9]+)\.(.*)$]] [[\2]] version_minor ${version})
+string(REGEX REPLACE [[^([0-9]+)\.([0-9]+)\.(.*)$]] [[\3]] version_patch ${version})
+
+file(MAKE_DIRECTORY  ${CMAKE_SOURCE_DIR}/src/nbla/proto)
 execute_process(
   COMMAND
   ${PYTHON_COMMAND}
-  ${CMAKE_SOURCE_DIR}/build-tools/code_generator/generate.py
+  ${CMAKE_SOURCE_DIR}/build-tools/code_generator/generate.py ${version}
   RESULT_VARIABLE GENERATE_RESULT)
 
 if (NOT ${GENERATE_RESULT} EQUAL 0)
   message(FATAL_ERROR "generate.py failed.")
 endif ()
-
-configure_file(
-  ${CMAKE_SOURCE_DIR}/build-tools/code_generator/functions.yaml
-  ${CMAKE_SOURCE_DIR}/python/src/nnabla/utils/converter/functions.yaml
-  COPYONLY)
 
 if (${CMAKE_SOURCE_DIR}/src/nbla/proto/nnabla.proto
     IS_NEWER_THAN
@@ -384,4 +385,3 @@ if(BUILD_PYTHON_PACKAGE)
   endif()
 
 endif() # BUILD_PYTHON_PACKAGE
-
